@@ -1,0 +1,259 @@
+# =============================================================================
+#                    HEISENBERG CONFIGURATION FILE (YAML FORMAT)
+# =============================================================================
+#
+# This is an example configuration file for the Heisenberg analysis.
+# Copy this file and modify the values to match your data.
+#
+# To run the analysis:
+#   heisenberg run example_config.yaml
+#
+# To validate the configuration:
+#   heisenberg validate example_config.yaml
+#
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# FILE NAMES
+# -----------------------------------------------------------------------------
+files:
+  datadir: /full/path/of/directory/where/fits/files/are/stored/
+  galaxy: string_identifying_galaxy_in_ouput_filenames
+  starfile: this_is_a_SF_map.fits
+  gasfile: this_is_a_gas_map.fits
+  # Optional secondary maps (set to null or remove if not used):
+  starfile2: null  # Secondary stellar map for peak identification (if use_star2=true)
+  gasfile2: null   # Secondary gas map for peak identification (if use_gas2=true)
+  starfile3: null  # Additional stellar map for flux ratio masking (if use_star3=true)
+
+# -----------------------------------------------------------------------------
+# PEAK ID FILE NAMES
+# (Only used if id_peaks = 2)
+# -----------------------------------------------------------------------------
+peak_files:
+  peaksdir: /full/path/of/directory/where/peak/files/are/stored/
+  peakiddir: /full/path/of/directory/where/peakid/files/are/stored/
+  starpeakidfile: this_is_a_peakid_file_for_starfile_peaks.dat
+  gaspeakidfile: this_is_a_peakid_file_for_gasfile_peaks.dat
+  intpeakidfile: this_is_an_interactive_peak_ID_report.dat
+
+# -----------------------------------------------------------------------------
+# MASK FILE NAMES
+# DS9 region files for masking areas in the images
+# -----------------------------------------------------------------------------
+mask_files:
+  maskdir: /full/path/of/directory/where/region/files/are/stored/
+  star_ext_mask: masks_external_pixels_for_SF.reg
+  star_int_mask: masks_internal_pixels_for_SF.reg
+  gas_ext_mask: masks_external_pixels_for_gas.reg
+  gas_int_mask: masks_internal_pixels_for_gas.reg
+  # Secondary mask files (set to null if not used):
+  star_ext_mask2: null
+  star_int_mask2: null
+  gas_ext_mask2: null
+  gas_int_mask2: null
+  star_ext_mask3: null
+  star_int_mask3: null
+
+# -----------------------------------------------------------------------------
+# UNFILTERED FILE NAMES
+# (For diffuse fraction calculation with pass-through images)
+# -----------------------------------------------------------------------------
+unfilt_files:
+  unfiltdir: /full/path/of/directory/where/unfiltered/files/are/stored/
+  star_unfilt_file: null
+  gas_unfilt_file: null
+
+# -----------------------------------------------------------------------------
+# FLAGS 1: Module Switches
+# -----------------------------------------------------------------------------
+flags1:
+  mask_images: true       # Apply masks to images
+  regrid: true            # Read, regrid files, and synchronize masks
+  smoothen: true          # Create smoothed maps for each aperture size
+  sensitivity: true       # Fit Gaussians to pixel PDFs for sensitivity limits
+  id_peaks: 1             # 0=reuse from default, 1=identify new, 2=reuse from path
+  calc_ap_flux: true      # Calculate enclosed flux for each peak/aperture
+  generate_plot: true     # Generate output plots (PostScript)
+  get_distances: true     # Calculate distances between peak pairs
+  calc_obs: true          # Monte-Carlo sample peaks, get observed tuning fork
+  calc_fit: true          # Fit KL14 principle model
+  diffuse_frac: true      # Calculate diffuse fraction in images
+  derive_phys: true       # Calculate derived physical quantities
+  write_output: true      # Write results to output files
+  cleanup: 2              # 0=keep files, 1=prompt before delete, 2=auto-delete
+  autoexit: false         # Exit automatically upon completion
+
+# -----------------------------------------------------------------------------
+# FLAGS 2: Ancillary File Usage
+# -----------------------------------------------------------------------------
+flags2:
+  use_star2: false        # Use different map for stellar peak identification
+  use_gas2: false         # Use different map for gas peak identification
+  use_star3: false        # Use additional stellar map for flux ratio masking
+
+# -----------------------------------------------------------------------------
+# FLAGS 3: Masking Options
+# -----------------------------------------------------------------------------
+flags3:
+  mstar_ext: true         # Mask starfile exterior to star_ext_mask regions
+  mstar_int: true         # Mask starfile interior to star_int_mask regions
+  mgas_ext: true          # Mask gasfile exterior to gas_ext_mask regions
+  mgas_int: true          # Mask gasfile interior to gas_int_mask regions
+  mstar_ext2: false       # Mask starfile2 exterior regions
+  mstar_int2: false       # Mask starfile2 interior regions
+  mgas_ext2: false        # Mask gasfile2 exterior regions
+  mgas_int2: false        # Mask gasfile2 interior regions
+  mstar_ext3: false       # Mask starfile3 exterior regions
+  mstar_int3: false       # Mask starfile3 interior regions
+  convert_masks: false    # Convert masks from other DS9 coordinate systems
+  cut_radius: true        # Mask outside specified radial interval
+
+# -----------------------------------------------------------------------------
+# FLAGS 4: Analysis Options
+# -----------------------------------------------------------------------------
+flags4:
+  set_centre: true        # Use specified centrex/centrey (false=use image center)
+  tophat: true            # Use tophat kernel (false=Gaussian)
+  loglevels: true         # Logarithmic contour spacing (false=linear)
+  peak_find_tui: false    # Enable interactive peak finding TUI
+  flux_weight: false      # Flux-weighted position (false=brightest pixel)
+  calc_ap_area: true      # Calculate aperture area from unmasked pixels
+  tstar_incl: false       # tstariso includes overlap (false: tstar=tstariso+tover)
+  peak_prof: 2            # 0=points, 1=constant-density discs, 2=2D Gaussians
+  map_units: 1            # 0=unknown, 1=SFR/gas, 2=gas1/gas2, 3=SFR1/SFR2
+  star_tot_mode: 0        # 0=calculate from map, 1=use star_tot_val
+  gas_tot_mode: 0         # 0=calculate from map, 1=use gas_tot_val
+  use_X11: true           # Allow X11 windows
+  log10_output: true      # Write output as log10(value)
+
+# -----------------------------------------------------------------------------
+# INPUT PARAMETERS 1: Basic Map Analysis
+# -----------------------------------------------------------------------------
+basic_map:
+  distance: 840000.0      # Distance to galaxy in pc
+  inclination: 0.0        # Inclination angle in degrees
+  posangle: 0.0           # Position angle in degrees
+  centrex: 701            # Galaxy center X pixel (0-indexed from left)
+  centrey: 701            # Galaxy center Y pixel (0-indexed from bottom)
+  minradius: 0.0          # Minimum radius for analysis in pc
+  maxradius: 10000.0      # Maximum radius for analysis in pc
+  Fs1_Fs2_min: 15.0       # Min flux ratio for including pixels (if use_star3=true)
+  max_sample: 10          # Max pixels per map resolution FWHM
+  astr_tolerance: 1.0e-6  # Astrometric tolerance in decimal degrees
+  nbins: 20               # Bins for sensitivity limit PDF fitting
+
+# -----------------------------------------------------------------------------
+# INPUT PARAMETERS 2: Apertures
+# -----------------------------------------------------------------------------
+aperture:
+  lapmin: 25.0            # Minimum aperture diameter in pc
+  lapmax: 6400.0          # Maximum aperture diameter in pc
+  naperture: 9            # Number of aperture sizes
+  peak_res: 1             # Index for peak identification (0-indexed)
+  max_res: 8              # Index for maximum scale fitting (0-indexed)
+
+# -----------------------------------------------------------------------------
+# INPUT PARAMETERS 3: Peak Identification
+# -----------------------------------------------------------------------------
+peak_id:
+  npixmin: 20             # Minimum pixels for a valid peak
+  nsigma: 5.0             # Significance threshold (x sensitivity limit)
+  logrange_s: 2.0         # Log range for stellar contour levels
+  logspacing_s: 0.5       # Log interval between stellar contours
+  logrange_g: 2.0         # Log range for gas contour levels
+  logspacing_g: 0.5       # Log interval between gas contours
+  nlinlevel_s: 11         # Linear contour levels for stars (if loglevels=false)
+  nlinlevel_g: 11         # Linear contour levels for gas (if loglevels=false)
+
+# -----------------------------------------------------------------------------
+# INPUT PARAMETERS 4: Timeline
+# -----------------------------------------------------------------------------
+timeline:
+  tstariso: 1.0           # Reference timescale of SF tracer in Myr
+  tstariso_errmin: 0.0    # Downward error in Myr
+  tstariso_errmax: 0.0    # Upward error in Myr
+  tgasmini: 0.1           # Minimum tgas during fitting in Myr
+  tgasmaxi: 1000.0        # Maximum tgas during fitting in Myr
+  tovermini: 0.01         # Minimum tover during fitting in Myr
+
+# -----------------------------------------------------------------------------
+# INPUT PARAMETERS 5: Fitting
+# -----------------------------------------------------------------------------
+fitting:
+  nmc: 1000               # Monte Carlo peak drawing experiments
+  ndepth: 4               # Max parameter refinement loops
+  ntry: 101               # Size of parameter grid
+  nphysmc: 1000000        # MC experiments for derived physics errors
+
+# -----------------------------------------------------------------------------
+# INPUT PARAMETERS 6: Fourier Filtering
+# -----------------------------------------------------------------------------
+fourier:
+  use_unfilt_ims: false   # Use unfiltered images for diffuse fraction
+  diffuse_quant: 1        # 0=flux, 1=power
+  f_filter_type: 2        # 0=butterworth, 1=gaussian, 2=ideal
+  bw_order: 2             # Butterworth filter order
+  filter_len_conv: 1.0    # Filter cut length = lambda * filter_len_conv
+  emfrac_cor_mode: 0      # Correction mode: 0=none, 1=flux loss, 4=overlap, 5=both
+  rpeak_cor_mode: 0       # 0=measured, 1=use supplied values
+  rpeaks_cor_val: 1.0     # r_peak_star for flux loss correction
+  rpeaks_cor_emin: 0.5    # Downward error of r_peak_star
+  rpeaks_cor_emax: 0.5    # Upward error of r_peak_star
+  rpeakg_cor_val: 1.0     # r_peak_gas for flux loss correction
+  rpeakg_cor_emin: 0.5    # Downward error of r_peak_gas
+  rpeakg_cor_emax: 0.5    # Upward error of r_peak_gas
+
+# -----------------------------------------------------------------------------
+# INPUT PARAMETERS 7: Conversions and Constants
+# -----------------------------------------------------------------------------
+conversion:
+  convstar: -3.69206      # Log10 conversion: pixel -> SFR [Msun/yr] or mass [Msun]
+  convstar_rerr: 0.0      # Relative error of convstar
+  convgas: 2.30794        # Log10 conversion: pixel -> mass [Msun] or SFR [Msun/yr]
+  convgas_rerr: 0.0       # Relative error of convgas
+  convstar3: 0.0          # Log10 conversion for starfile3
+  convstar3_rerr: 0.0     # Relative error of convstar3
+  lighttomass: 0.002      # Light-to-mass ratio [m^2 s^-3] (default: SNe)
+  momratetomass: 5.0e-10  # Momentum rate per mass [m s^-2] (default: SNe+winds)
+  star_tot_val: 1.0       # Total SFR/gas mass for stellar map (if star_tot_mode=1)
+  star_tot_err: 0.1       # Error on star_tot_val
+  gas_tot_val: 1.0e9      # Total gas mass/SFR for gas map (if gas_tot_mode=1)
+  gas_tot_err: 1.0e8      # Error on gas_tot_val
+
+# -----------------------------------------------------------------------------
+# INPUT PARAMETERS 8: Sensitivity
+# -----------------------------------------------------------------------------
+sensitivity:
+  use_stds: false         # Use supplied std values (false=calculate)
+  std_star: 0.1           # Standard deviation of starfile
+  std_star3: 0.1          # Standard deviation of starfile3
+  std_gas: 0.1            # Standard deviation of gasfile
+
+# -----------------------------------------------------------------------------
+# INPUT PARAMETERS 9: Noise Threshold
+# -----------------------------------------------------------------------------
+noise:
+  use_noisecut: true      # Mask below noise threshold after filtering
+  noisethresh_s: 20.0     # Noise threshold for star map
+  noisethresh_g: 20.0     # Noise threshold for gas map
+
+# -----------------------------------------------------------------------------
+# INPUT PARAMETERS 10: Iterative Diffuse Filtering
+# (Only used with iterative diffuse filtering mode)
+# -----------------------------------------------------------------------------
+iteration:
+  use_guess: false        # Filter with initial lambda guess before first run
+  initial_guess: 200.0    # Initial lambda estimate in pc
+  iter_criterion: 0.05    # Fractional convergence criterion
+  iter_crit_len: 2        # Previous iterations for convergence check
+  iter_nmax: 10           # Maximum iterations
+  iter_filter: 2          # 0=butterworth, 1=gaussian, 2=ideal
+  iter_bwo: 2             # Butterworth order for iteration
+  iter_len_conv: 2.0      # Iteration filter cut length conversion
+  iter_rpeak_mode: 0      # 0=use rpeak_cor_mode, 1=use iter0 values
+  iter_tot_mode_s: 0      # 0=per-iteration, 1=from iter0, 2=from star_tot_val
+  iter_tot_mode_g: 0      # 0=per-iteration, 1=from iter0, 2=from gas_tot_val
+  iter_autoexit: false    # Exit automatically after iteration completion
+  use_nice: false         # Use nice for process priority
+  nice_value: 0           # Nice priority (-20 to 19)
