@@ -34,6 +34,15 @@ from heisenberg.imaging.masking import (
     apply_mask_to_image,
     write_mask_fits,
 )
+from heisenberg.imaging.aperture import (
+    ApertureFluxResult,
+    generate_aperture_sizes,
+    create_smoothed_cube,
+    measure_aperture_flux,
+    compute_flux_ratios,
+    select_non_overlapping_peaks,
+    monte_carlo_flux_ratios,
+)
 
 __all__ = [
     # FITS I/O
@@ -62,4 +71,12 @@ __all__ = [
     "synchronize_masks",
     "apply_mask_to_image",
     "write_mask_fits",
+    # Aperture photometry
+    "ApertureFluxResult",
+    "generate_aperture_sizes",
+    "create_smoothed_cube",
+    "measure_aperture_flux",
+    "compute_flux_ratios",
+    "select_non_overlapping_peaks",
+    "monte_carlo_flux_ratios",
 ]
