@@ -32,6 +32,7 @@ dependencies = [
     "pydantic>=2.0",
     "pyyaml>=6.0",
     "tqdm>=4.0",
+    "regions>=0.7",
 ]
 
 [project.optional-dependencies]
@@ -42,10 +43,9 @@ dev = [
     "ruff",
     "mypy",
 ]
-regions = ["regions>=0.7"]
 interactive = ["rich>=13.0", "pyds9>=1.8"]
 jupyter = ["ipywidgets>=8.0", "jupyterlab>=4.0"]
-all = ["heisenberg[dev,regions,interactive,jupyter]"]
+all = ["heisenberg[dev,interactive,jupyter]"]
 
 [project.scripts]
 heisenberg = "heisenberg.cli:main"
