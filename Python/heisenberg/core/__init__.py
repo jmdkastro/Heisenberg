@@ -29,6 +29,14 @@ from heisenberg.core.derived import (
     f_chipr,
 )
 from heisenberg.core.fitting import fit_kl14, FitResult, pdf_to_values
+from heisenberg.core.tuningfork import (
+    TuningForkConfig,
+    TuningForkData,
+    TuningForkResult,
+    run_tuningfork,
+    compute_derived_quantities,
+    generate_model_curve,
+)
 
 __all__ = [
     # Constants
@@ -59,4 +67,11 @@ __all__ = [
     "fit_kl14",
     "FitResult",
     "pdf_to_values",
+    # Tuningfork pipeline
+    "TuningForkConfig",
+    "TuningForkData",
+    "TuningForkResult",
+    "run_tuningfork",
+    "compute_derived_quantities",
+    "generate_model_curve",
 ]
