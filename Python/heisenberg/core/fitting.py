@@ -279,8 +279,21 @@ def fit_kl14(
                         )
 
                         # Calculate chi-squared
-                        diff_star = (np.log10(fluxratio_star[use] / fr_star_th[use]))**2 / err_star_log[use]**2
-                        diff_gas = (np.log10(fluxratio_gas[use] / fr_gas_th[use]))**2 / err_gas_log[use]**2
+                        # Minimum error floor: 0.01% flux uncertainty corresponds to
+                        # log10(1.0001) ~ 4e-5, use 1e-4 as minimum to avoid
+                        # numerical issues while allowing very precise measurements
+                        err_floor = 1e-4
+                        err_star_safe = np.maximum(err_star_log[use], err_floor)
+                        err_gas_safe = np.maximum(err_gas_log[use], err_floor)
+
+                        # Safe division: if model predicts ~0, use small epsilon
+                        # This gives very large chi-squared (bad fit) which is correct
+                        eps = 1e-30
+                        fr_star_safe = np.maximum(fr_star_th[use], eps)
+                        fr_gas_safe = np.maximum(fr_gas_th[use], eps)
+
+                        diff_star = (np.log10(fluxratio_star[use] / fr_star_safe))**2 / err_star_safe**2
+                        diff_gas = (np.log10(fluxratio_gas[use] / fr_gas_safe))**2 / err_gas_safe**2
                         diff = np.concatenate([diff_star, diff_gas])
                         chi2[i, j, k] = np.sum(diff * weights)
 
@@ -303,8 +316,16 @@ def fit_kl14(
             dlambdaarr[:, :, i] = dlambda[i]
 
         # Normalize probability
-        probcst = 1.0 / np.sum(prob * dtgasarr * dtoverarr * dlambdaarr)
-        probnorm = prob * probcst
+        # If all chi2 values are huge, prob_sum can underflow to 0
+        # In this case, use the minimum chi2 point as delta function
+        prob_sum = np.sum(prob * dtgasarr * dtoverarr * dlambdaarr)
+        if prob_sum > 0:
+            probcst = 1.0 / prob_sum
+            probnorm = prob * probcst
+        else:
+            # Fallback: use minimum chi2 location only
+            probnorm = np.zeros_like(prob)
+            probnorm[ibest, jbest, kbest] = 1.0 / (dtgas[ibest] * dtover[jbest] * dlambda[kbest])
 
         # Marginalize to get 1D PDFs
         probtgas = np.sum(probnorm * dtoverarr * dlambdaarr, axis=(1, 2))
