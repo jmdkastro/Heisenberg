@@ -195,8 +195,9 @@ def regions_to_mask(
                 pass  # Handled after combining positives
             else:
                 # Normal region in positive mask = allow this region
+                # region_to_mask with negative=False returns mask where inside=1 (unmasked)
                 region_mask = region_to_mask(region, shape, negative=False)
-                combined = np.maximum(combined, 1.0 - region_mask.data)
+                combined = np.maximum(combined, region_mask.data)
 
     desc = f"{'Negative' if negative else 'Positive'} mask from {len(regions)} regions"
     return Mask(data=combined, description=desc)
