@@ -43,6 +43,20 @@ from heisenberg.imaging.aperture import (
     select_non_overlapping_peaks,
     monte_carlo_flux_ratios,
 )
+from heisenberg.imaging.mask_tool import (
+    MaskToolResult,
+    mask_tool,
+    create_mask_from_ds9,
+    region_to_mask,
+    regions_to_mask,
+)
+from heisenberg.imaging.astrometry import (
+    get_equinox,
+    get_rotation,
+    astrometry_equal as astrometry_equal_thorough,
+    images_aligned,
+    compute_pixel_offset,
+)
 
 __all__ = [
     # FITS I/O
@@ -79,4 +93,16 @@ __all__ = [
     "compute_flux_ratios",
     "select_non_overlapping_peaks",
     "monte_carlo_flux_ratios",
+    # Mask tool
+    "MaskToolResult",
+    "mask_tool",
+    "create_mask_from_ds9",
+    "region_to_mask",
+    "regions_to_mask",
+    # Astrometry
+    "get_equinox",
+    "get_rotation",
+    "astrometry_equal_thorough",
+    "images_aligned",
+    "compute_pixel_offset",
 ]

@@ -50,6 +50,17 @@ from heisenberg.plotting.ds9_regions import (
     box_vertices,
     write_box_regions,
     read_box_regions,
+    # Full region parsing
+    RegionType,
+    CoordinateSystem,
+    DS9Region,
+    parse_ds9_region_file,
+    ds9_convert_to_image,
+    write_ellipse_regions,
+    write_polygon_regions,
+    read_ellipse_regions,
+    read_polygon_regions,
+    read_circle_regions,
 )
 
 # Pipeline integration
@@ -99,6 +110,16 @@ __all__ = [
     "box_vertices",
     "write_box_regions",
     "read_box_regions",
+    "RegionType",
+    "CoordinateSystem",
+    "DS9Region",
+    "parse_ds9_region_file",
+    "ds9_convert_to_image",
+    "write_ellipse_regions",
+    "write_polygon_regions",
+    "read_ellipse_regions",
+    "read_polygon_regions",
+    "read_circle_regions",
     # Pipeline integration
     "plot_map_with_peaks",
     "plot_star_gas_maps",
