@@ -54,6 +54,7 @@ from .diffuse import (
     calculate_diffuse_fraction,
     calculate_diffuse_fraction_with_errors,
     calculate_corrected_diffuse_fraction,
+    calculate_dist_stat_from_peaks,
 )
 
 __all__ = [
@@ -92,4 +93,5 @@ __all__ = [
     "calculate_diffuse_fraction",
     "calculate_diffuse_fraction_with_errors",
     "calculate_corrected_diffuse_fraction",
+    "calculate_dist_stat_from_peaks",
 ]
