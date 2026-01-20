@@ -47,6 +47,9 @@ from heisenberg.plotting.ds9_regions import (
     write_peak_regions,
     write_circle_regions,
     read_peak_regions,
+    box_vertices,
+    write_box_regions,
+    read_box_regions,
 )
 
 # Clump visualization
@@ -83,6 +86,9 @@ __all__ = [
     "write_peak_regions",
     "write_circle_regions",
     "read_peak_regions",
+    "box_vertices",
+    "write_box_regions",
+    "read_box_regions",
     # Clump display
     "plot_clumps",
     "plot_clumps_with_contours",
