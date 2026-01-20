@@ -3,7 +3,7 @@ Tuning Fork Analysis Pipeline.
 
 Main orchestration module for the Heisenberg uncertainty principle analysis.
 Coordinates peak identification, aperture photometry, flux ratio calculation,
-and KL14 model fitting.
+and KL14 uncertainty principle fitting.
 
 The "tuning fork" diagram shows gas-to-stellar flux ratios as a function
 of aperture size, with characteristic divergence between stellar-peak and
@@ -32,7 +32,7 @@ from heisenberg.peaks import (
     DetectedPeak,
     peaks_to_coords,
 )
-from heisenberg.core.fitting import fit_kl14, FitResult
+from heisenberg.core.fitting import fit_tuningfork, FitResult
 from heisenberg.core.derived import (
     f_esf,
     f_vfb,
@@ -75,7 +75,7 @@ class TuningForkResult:
 
     Attributes:
         observed: Observed tuning fork data
-        fit: KL14 model fit result
+        fit: FitResult from KL14 uncertainty principle fitting
         star_peaks: List of detected stellar peaks
         gas_peaks: List of detected gas peaks
         derived: Dictionary of derived physical quantities
@@ -156,7 +156,7 @@ def run_tuningfork(
     1. Identifies peaks in stellar and gas maps
     2. Measures flux at peaks across multiple aperture sizes
     3. Computes flux ratios with Monte Carlo uncertainty
-    4. Fits the KL14 model to derive timescales
+    4. Fits the KL14 uncertainty principle to derive timescales
 
     Args:
         star_image: Stellar tracer map (e.g., H-alpha, FUV)
@@ -258,7 +258,7 @@ def run_tuningfork(
         n_gas_peaks=n_gas,
     )
 
-    # Step 5: Fit KL14 model
+    # Step 5: Fit KL14 uncertainty principle
     # Create default beta and overlap arrays (unity for simple case)
     # beta_star/beta_gas are interpolation tables: value at each fstarover/fgasover
     n_ap = len(apertures)
@@ -270,7 +270,7 @@ def run_tuningfork(
     surfcontrasts = np.ones(n_ap) * 5.0  # Default surface contrast
     surfcontrastg = np.ones(n_ap) * 5.0
 
-    fit = fit_kl14(
+    fit = fit_tuningfork(
         fluxratio_star=mean_star,
         fluxratio_gas=mean_gas,
         err_star_log=err_star_log,
@@ -330,7 +330,7 @@ def compute_derived_quantities(
     Compute derived physical quantities from fit results.
 
     Args:
-        fit: FitResult from KL14 model fitting
+        fit: FitResult from KL14 uncertainty principle fitting
         config: TuningForkConfig used for analysis
         tdepl: Depletion time (Myr) for efficiency calculation
         fcl: Fraction of stellar emission in compact regions
@@ -379,7 +379,7 @@ def generate_model_curve(
     Generate smooth model curves for plotting.
 
     Args:
-        fit: FitResult from KL14 model fitting
+        fit: FitResult from KL14 uncertainty principle fitting
         apertures: Aperture values to evaluate at (optional)
         n_points: Number of points if apertures not provided
 

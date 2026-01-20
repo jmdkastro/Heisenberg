@@ -179,7 +179,7 @@ class Flags1(BaseModel):
     )
     calc_fit: bool = Field(
         True,
-        description="Fit KL14 principle model"
+        description="Fit KL14 uncertainty principle"
     )
     diffuse_frac: bool = Field(
         True,

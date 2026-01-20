@@ -66,7 +66,7 @@ def _fit_result_to_dict(
     Convert FitResult to dictionary.
 
     Args:
-        fit: FitResult from KL14 fitting
+        fit: FitResult from KL14 uncertainty principle fitting
         include_arrays: Whether to include probability arrays
 
     Returns:

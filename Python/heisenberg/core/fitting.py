@@ -1,5 +1,5 @@
 """
-KL14 Model Fitting.
+KL14 Uncertainty Principle Fitting.
 
 This module implements the chi-squared fitting procedure for the KL14
 uncertainty principle model. It performs a 3D grid search over:
@@ -25,7 +25,7 @@ from heisenberg.core.model import f_fluxratiostar, f_fluxratiogas
 
 @dataclass
 class FitResult:
-    """Results from the KL14 model fitting procedure."""
+    """Results from fitting the KL14 uncertainty principle."""
 
     # Best-fit values
     tgas: float  # Gas phase duration (Myr)
@@ -124,7 +124,7 @@ def pdf_to_values(
     return evalue, errmin, errmax
 
 
-def fit_kl14(
+def fit_tuningfork(
     fluxratio_star: np.ndarray,
     fluxratio_gas: np.ndarray,
     err_star_log: np.ndarray,
