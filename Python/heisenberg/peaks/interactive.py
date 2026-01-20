@@ -169,7 +169,6 @@ def _run_peak_detection(
         nsigma=config.nsigma,
         loglevels=config.loglevels,
         logrange=logrange,
-        logspacing=logspacing,
         nlevels=nlevels,
         flux_weighted=config.flux_weighted,
     )
