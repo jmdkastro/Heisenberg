@@ -37,6 +37,14 @@ from heisenberg.core.tuningfork import (
     compute_derived_quantities,
     generate_model_curve,
 )
+from heisenberg.core.diffuse_iteration import (
+    DiffuseIterationConfig,
+    IterationHistory,
+    run_diffuse_iteration,
+    apply_image_threshold,
+    iter_image_postprocess,
+    write_iteration_report,
+)
 
 __all__ = [
     # Constants
@@ -74,4 +82,11 @@ __all__ = [
     "run_tuningfork",
     "compute_derived_quantities",
     "generate_model_curve",
+    # Diffuse iteration
+    "DiffuseIterationConfig",
+    "IterationHistory",
+    "run_diffuse_iteration",
+    "apply_image_threshold",
+    "iter_image_postprocess",
+    "write_iteration_report",
 ]
