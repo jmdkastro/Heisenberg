@@ -702,7 +702,7 @@ pro make_input_file, input_file_filepath   $ ; general variables
 
   printf, inp_lun, '####################################################################################'
   printf, inp_lun, '#                                                                                  #'
-  printf, inp_lun, '#                    FIT KL14 PRINCIPLE TO OBSERVED GALAXY MAPS                    #'
+  printf, inp_lun, '#              FIT KL14 UNCERTAINTY PRINCIPLE TO OBSERVED GALAXY MAPS              #'
   printf, inp_lun, '# start environment with >> idl heisenberg -arg [full/absolute path of input file] #'
   printf, inp_lun, '#                                                                                  #'
   printf, inp_lun, '#           to skip iterative diffuse filtering, start environment with:           #'
@@ -762,7 +762,7 @@ pro make_input_file, input_file_filepath   $ ; general variables
   printf, inp_lun, 'generate_plot   ', generate_plot_str,  '# Generate output plots and save to PostScript files (on/off)'
   printf, inp_lun, 'get_distances   ', get_distances_str,  '# Calculate distances between all peak pairs (on/off)'
   printf, inp_lun, 'calc_obs        ', calc_obs_str,       '# Monte-Carlo sample peaks, get observed tuning fork (on/off)'
-  printf, inp_lun, 'calc_fit        ', calc_fit_str,       '# Fit KL14 principle model (on/off)'
+  printf, inp_lun, 'calc_fit        ', calc_fit_str,       '# Fit KL14 uncertainty principle (on/off)'
   printf, inp_lun, 'diffuse_frac    ', diffuse_frac_str,   '# Calculate diffuse fraction in images (on/off)'
   printf, inp_lun, 'derive_phys     ', derive_phys_str,    '# Calculate derived physical quantities (on/off)'
   printf, inp_lun, 'write_output    ', write_output_str,   '# Write results to output files (on/off)'
@@ -825,8 +825,8 @@ pro make_input_file, input_file_filepath   $ ; general variables
   printf, inp_lun, 'lapmin          ', lapmin_str,         '# Minimum aperture size (i.e. diameter) in pc to create smoothened maps for'
   printf, inp_lun, 'lapmax          ', lapmax_str,         '# Maximum aperture size (i.e. diameter) in pc to create smoothened maps for'
   printf, inp_lun, 'naperture       ', naperture_str,      '# Number of aperture sizes'
-  printf, inp_lun, 'peak_res        ', peak_res_str,       '# Minimum aperture size used in fitting the KL14 principle model, also index of aperture size at which peaks are identified (start counting at 0) - is set to map resolution if originally chosen to be smaller'
-  printf, inp_lun, 'max_res         ', max_res_str,        '# Maximum aperture size used in fitting the KL14 principle model, also index of aperture size at which fluxes best reflect galactic averages (start counting at 0)'
+  printf, inp_lun, 'peak_res        ', peak_res_str,       '# Minimum aperture size used in fitting the KL14 uncertainty principle, also index of aperture size at which peaks are identified (start counting at 0) - is set to map resolution if originally chosen to be smaller'
+  printf, inp_lun, 'max_res         ', max_res_str,        '# Maximum aperture size used in fitting the KL14 uncertainty principle, also index of aperture size at which fluxes best reflect galactic averages (start counting at 0)'
 
 
   printf, inp_lun, '# INPUT PARAMETERS 3 (peak identification)'

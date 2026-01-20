@@ -1,6 +1,6 @@
-;;;;;;;;;;;;;;;;;;;;
-;FIT KL14 PRINCIPLE;
-;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;FIT KL14 UNCERTAINTY PRINCIPLE;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 function f_intfrac,var,r1,r2
     a0=var(0) ;Gaussian normalisation
@@ -233,7 +233,7 @@ function f_plotdistr,array,darray,pdf,value,errmin,errmax,galaxy,figdir,varstrin
     return,report
 end
 
-function fitKL14,fluxratio_star,fluxratio_gas,err_star_log,err_gas_log,tstariso,beta_star,beta_gas,fstarover,fgasover,apertures_star,apertures_gas, $
+function fit_tuningfork,fluxratio_star,fluxratio_gas,err_star_log,err_gas_log,tstariso,beta_star,beta_gas,fstarover,fgasover,apertures_star,apertures_gas, $
                  surfcontrasts,surfcontrastg,peak_prof,tstar_incl,tgasmini,tgasmaxi,tovermini,tovermaxi,nfitstar,nfitgas, $
                  ndepth,ntry,galaxy,figdir,genplot,outputdir,arrdir,window_plot
 

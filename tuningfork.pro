@@ -1,6 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;                                                                                  ;
-;                    FIT KL14 PRINCIPLE TO OBSERVED GALAXY MAPS                    ;
+;                    FIT KL14 UNCERTAINTY PRINCIPLE TO OBSERVED GALAXY MAPS                    ;
 ; start environment with >> idl heisenberg -arg [full/absolute path of input file] ;
 ;                                                                                  ;
 ;           to skip iterative diffuse filtering, start environment with:           ;
@@ -254,7 +254,7 @@ centre_orig=[centrefracx*(nx_orig-1),centrefracy*(ny_orig-1)] ;pixel coordinates
 beammaxpc=distance*beamtest*!dtor/sqrt(cos(inclination)) ;largest beam size in pc -- assumes small angles, i.e. tan(x)~x
 beamaperture=min(where(abs(alog10(apertures/beammaxpc)) eq min(abs(alog10(apertures/beammaxpc)))))
 peak_res=max([peak_res,beamaperture]) ;ensure that the smallest aperture size is the aperture closest to the beam size
-fitap=fix(peak_res)+indgen(max_res-peak_res+1) ;aperture sizes used in fitting the KL14 principle model
+fitap=fix(peak_res)+indgen(max_res-peak_res+1) ;aperture sizes used in fitting the KL14 uncertainty principle
 lap_min=apertures(peak_res) ;size of smallest aperture
 
 
@@ -387,7 +387,7 @@ if sqrt(2.)*pixtopc gt apertures(naperture-2) then f_error,'less than 2 aperture
 if sqrt(2.)*pixtopc gt apertures(peak_res) then begin
     print, ' WARNING: minimum aperture size ('+f_string(lap_min,0)+' pc) is smaller than inclination-corrected pixel diagonal ('+f_string(sqrt(2.)*pixtopc,1)+' pc)'
     peak_res=min(where(apertures gt sqrt(2.)*pixtopc)) ;ensure that the smallest aperture size exceeds the pixel size
-    fitap=fix(peak_res)+indgen(max_res-peak_res+1) ;aperture sizes used in fitting the KL14 principle model
+    fitap=fix(peak_res)+indgen(max_res-peak_res+1) ;aperture sizes used in fitting the KL14 uncertainty principle
     lap_min=apertures(peak_res) ;size of smallest aperture
     print, ' WARNING: setting minimum aperture size to '+f_string(lap_min,0)+' pc to exceed pixel diagonal'
 endif
@@ -747,11 +747,11 @@ endif
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;DERIVE OBSERVED FLUX RATIO BIASES AND INPUT QUANTITIES FOR FITTING KL14 PRINCIPLE;
+;DERIVE OBSERVED FLUX RATIO BIASES AND INPUT QUANTITIES FOR FITTING KL14 UNCERTAINTY PRINCIPLE;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 if calc_obs then begin
-    print,' ==> deriving observed fluxratio biases and input parameters for fitting KL14 principle'
+    print,' ==> deriving observed fluxratio biases and input parameters for fitting KL14 uncertainty principle'
     fluxratio_galaxy=gasfluxtotal/starfluxtotal ;average g/s flux ratio in the included area
 
     ;start calculating observed fluxratio biases with Monte Carlo sampling of non-overlapping peaks
@@ -901,8 +901,8 @@ if calc_obs then begin
             apertures_star[i]=mean(apertures_star_mc[i,*]) ;mean aperture size centred on SF peaks for ith target aperture size (order of sqrt(mean) is intentional)
             apertures_gas[i]=mean(apertures_gas_mc[i,*]) ;mean aperture size centred on gas peaks for ith target aperture size (order of sqrt(mean) is intentional)
         endif else begin ;use the area of user-defined aperture areas
-            apertures_star[i] = apertures[i] ;replicate non-mask functionality for fitKL14
-            apertures_gas[i] = apertures[i]  ;replicate non-mask functionality for fitKL14
+            apertures_star[i] = apertures[i] ;replicate non-mask functionality for fit_tuningfork
+            apertures_gas[i] = apertures[i]  ;replicate non-mask functionality for fit_tuningfork
         endelse
 
         ;APERTURES CENTERED ON SF PEAKS -- obtain data points and errors
@@ -996,13 +996,13 @@ if calc_obs then begin
 endif
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;FIT KL14 PRINCIPLE TO DATA;
+;FIT KL14 UNCERTAINTY PRINCIPLE TO DATA;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 if calc_fit then begin
-    print,' ==> fitting KL14 principle'
+    print,' ==> fitting KL14 uncertainty principle'
 
-    fit=fitKL14(fluxratio_star[fitap]/fluxratio_galaxy,fluxratio_gas[fitap]/fluxratio_galaxy, $
+    fit=fit_tuningfork(fluxratio_star[fitap]/fluxratio_galaxy,fluxratio_gas[fitap]/fluxratio_galaxy, $
                 err_star_log[fitap],err_gas_log[fitap],tstariso,beta_star,beta_gas,fstarover,fgasover,apertures_star[fitap],apertures_gas[fitap], $
                 surfcontrasts[fitap],surfcontrastg[fitap],peak_prof,tstar_incl,tgasmini,tgasmaxi,tovermini,tovermaxi,nfitstar[fitap],nfitgas[fitap], $
                 ndepth,ntry,galaxy,figdir,generate_plot,outputdir,arrdir,window_plot)
@@ -1540,7 +1540,7 @@ if write_output then begin
     openw,lun,outputdir+galaxy+'_output.dat',/get_lun
     printf,lun,'########################################################################################################################'
     printf,lun,'#                                                                                                                      #'
-    printf,lun,'#                                      FIT KL14 PRINCIPLE TO OBSERVED GALAXY MAPS                                      #'
+    printf,lun,'#                                      FIT KL14 UNCERTAINTY PRINCIPLE TO OBSERVED GALAXY MAPS                                      #'
     printf,lun,'# Best-fitting values and derived quantities generated with the Kruijssen & Longmore (2014) uncertainty principle code #'
     printf,lun,'#           IMPORTANT: see Paper II (Kruijssen et al. 2018) for details on how these numbers were calculated           #'
     printf,lun,'#                                                                                                                      #'

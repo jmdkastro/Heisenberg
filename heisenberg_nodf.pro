@@ -40,7 +40,7 @@
 .com smoothfits
 .com peaks2d
 .com derivefunc
-.com fitKL14
+.com fit_tuningfork
 .com unity_symmetric_sigmoidal
 .com symmetric_sigmoidal
 .com lin_unity_intercept
