@@ -77,7 +77,7 @@ flags1:
   generate_plot: true     # Generate output plots (PostScript)
   get_distances: true     # Calculate distances between peak pairs
   calc_obs: true          # Monte-Carlo sample peaks, get observed tuning fork
-  calc_fit: true          # Fit KL14 principle model
+  calc_fit: true          # Fit KL14 uncertainty principle
   diffuse_frac: true      # Calculate diffuse fraction in images
   derive_phys: true       # Calculate derived physical quantities
   write_output: true      # Write results to output files

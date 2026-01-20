@@ -1,6 +1,6 @@
 ####################################################################################
 #                                                                                  #
-#                    FIT KL14 PRINCIPLE TO OBSERVED GALAXY MAPS                    #
+#              FIT KL14 UNCERTAINTY PRINCIPLE TO OBSERVED GALAXY MAPS              #
 #                                                                                  #
 #                          HEISENBERG CONFIGURATION FILE                           #
 #                                                                                  #
@@ -56,7 +56,7 @@ calc_ap_flux    1         # Calculate the enclosed flux for each peak and apertu
 generate_plot   1         # Generate output plots and save to PostScript files (on/off)
 get_distances   1         # Calculate distances between all peak pairs (on/off)
 calc_obs        1         # Monte-Carlo sample peaks, get observed tuning fork (on/off)
-calc_fit        1         # Fit KL14 principle model (on/off)
+calc_fit        1         # Fit KL14 uncertainty principle (on/off)
 diffuse_frac    1         # Calculate diffuse fraction in images (on/off)
 derive_phys     1         # Calculate derived physical quantities (on/off)
 write_output    1         # Write results to output files (on/off)
@@ -110,8 +110,8 @@ nbins           20        # Number of bins used during sensitivity limit calcula
 lapmin          25.       # Minimum aperture size (i.e. diameter) in pc to create smoothened maps for
 lapmax          6400.     # Maximum aperture size (i.e. diameter) in pc to create smoothened maps for
 naperture       9         # Number of aperture sizes
-peak_res        1         # Minimum aperture size used in fitting the KL14 principle model, also index of aperture size at which peaks are identified (start counting at 0) - is set to map resolution if originally chosen to be smaller
-max_res         8         # Maximum aperture size used in fitting the KL14 principle model, also index of aperture size at which fluxes best reflect galactic averages (start counting at 0)
+peak_res        1         # Minimum aperture size used in fitting the KL14 uncertainty principle, also index of aperture size at which peaks are identified (start counting at 0) - is set to map resolution if originally chosen to be smaller
+max_res         8         # Maximum aperture size used in fitting the KL14 uncertainty principle, also index of aperture size at which fluxes best reflect galactic averages (start counting at 0)
 # INPUT PARAMETERS 3 (peak identification)
 npixmin         20        # Minimum number of pixels for a valid peak (use npixmin=1 to allow points)
 nsigma          5         # Multiple of the sensitivity limit needed for a valid peak
