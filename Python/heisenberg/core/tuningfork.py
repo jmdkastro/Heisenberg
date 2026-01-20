@@ -39,6 +39,10 @@ from heisenberg.core.derived import (
     f_etainst,
     f_etaavg,
 )
+from heisenberg.peaks.nearest_neighbour import (
+    nearest_neighbour_from_peaks,
+    NearestNeighbourResult,
+)
 
 
 @dataclass
@@ -76,6 +80,8 @@ class TuningForkResult:
         gas_peaks: List of detected gas peaks
         derived: Dictionary of derived physical quantities
         config: Configuration used for analysis
+        star_nn: Nearest-neighbour statistics for stellar peaks
+        gas_nn: Nearest-neighbour statistics for gas peaks
     """
     observed: TuningForkData
     fit: FitResult
@@ -83,6 +89,8 @@ class TuningForkResult:
     gas_peaks: List[DetectedPeak]
     derived: Dict[str, float] = field(default_factory=dict)
     config: Dict[str, Any] = field(default_factory=dict)
+    star_nn: Optional[NearestNeighbourResult] = None
+    gas_nn: Optional[NearestNeighbourResult] = None
 
 
 @dataclass
@@ -200,6 +208,10 @@ def run_tuningfork(
     if len(gas_peaks) < 2:
         raise ValueError(f"Insufficient gas peaks: {len(gas_peaks)} (need >= 2)")
 
+    # Step 2b: Calculate nearest-neighbour statistics (for overlap correction)
+    star_nn = nearest_neighbour_from_peaks(star_peaks, mask=mask, seed=config.seed)
+    gas_nn = nearest_neighbour_from_peaks(gas_peaks, mask=mask, seed=config.seed)
+
     # Step 3: Measure aperture flux
     star_coords = peaks_to_coords(star_peaks)
     gas_coords = peaks_to_coords(gas_peaks)
@@ -302,6 +314,8 @@ def run_tuningfork(
             'n_star_peaks': len(star_peaks),
             'n_gas_peaks': len(gas_peaks),
         },
+        star_nn=star_nn,
+        gas_nn=gas_nn,
     )
 
 
