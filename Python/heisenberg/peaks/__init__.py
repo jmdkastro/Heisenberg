@@ -46,6 +46,13 @@ from .nearest_neighbour import (
     nearest_neighbour_from_peaks,
 )
 
+from .interactive import (
+    InteractivePeakConfig,
+    InteractiveResult,
+    interactive_peak_find,
+    non_interactive_peak_find,
+)
+
 __all__ = [
     # Clumpfind
     "Clump",
@@ -70,4 +77,9 @@ __all__ = [
     "NearestNeighbourResult",
     "med_peak_relative_nearest_neighbour_dist",
     "nearest_neighbour_from_peaks",
+    # Interactive peak finding
+    "InteractivePeakConfig",
+    "InteractiveResult",
+    "interactive_peak_find",
+    "non_interactive_peak_find",
 ]
