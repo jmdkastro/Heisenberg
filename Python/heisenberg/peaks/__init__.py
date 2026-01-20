@@ -40,6 +40,12 @@ from .detection import (
     peaks_to_coords,
 )
 
+from .nearest_neighbour import (
+    NearestNeighbourResult,
+    med_peak_relative_nearest_neighbour_dist,
+    nearest_neighbour_from_peaks,
+)
+
 __all__ = [
     # Clumpfind
     "Clump",
@@ -60,4 +66,8 @@ __all__ = [
     "generate_contour_levels",
     "peaks_to_array",
     "peaks_to_coords",
+    # Nearest neighbour statistics
+    "NearestNeighbourResult",
+    "med_peak_relative_nearest_neighbour_dist",
+    "nearest_neighbour_from_peaks",
 ]
