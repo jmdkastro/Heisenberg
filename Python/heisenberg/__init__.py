@@ -14,7 +14,12 @@ Example usage:
     >>> results = run_analysis(config)
 """
 
-__version__ = "0.1.0"
+from importlib.metadata import version, PackageNotFoundError
+
+try:
+    __version__ = version("heisenberg")
+except PackageNotFoundError:
+    __version__ = "1.0.0"  # fallback for editable installs
 __author__ = "Heisenberg Team"
 
 from heisenberg.config import HeisenbergConfig, load_config

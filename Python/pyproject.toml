@@ -4,11 +4,11 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "heisenberg"
-version = "0.1.0"
+version = "1.0.0"
 description = "Uncertainty principle for star formation - Python implementation of the Heisenberg code"
 readme = "README.md"
 requires-python = ">=3.10"
-license = {text = "MIT"}
+license = {text = "GPL-3.0"}
 authors = [
     {name = "Heisenberg Team"},
 ]
