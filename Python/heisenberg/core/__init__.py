@@ -36,6 +36,8 @@ from heisenberg.core.tuningfork import (
     run_tuningfork,
     compute_derived_quantities,
     generate_model_curve,
+    generate_plots,
+    export_ds9_regions,
 )
 from heisenberg.core.diffuse_iteration import (
     DiffuseIterationConfig,
@@ -82,6 +84,8 @@ __all__ = [
     "run_tuningfork",
     "compute_derived_quantities",
     "generate_model_curve",
+    "generate_plots",
+    "export_ds9_regions",
     # Diffuse iteration
     "DiffuseIterationConfig",
     "IterationHistory",

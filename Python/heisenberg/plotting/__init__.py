@@ -52,6 +52,16 @@ from heisenberg.plotting.ds9_regions import (
     read_box_regions,
 )
 
+# Pipeline integration
+from heisenberg.plotting.pipeline_plots import (
+    plot_map_with_peaks,
+    plot_star_gas_maps,
+    plot_sensitivity_histogram,
+    plot_sensitivity_dual,
+    generate_all_plots,
+    export_peaks_to_ds9,
+)
+
 # Clump visualization
 from heisenberg.plotting.clump_display import (
     plot_clumps,
@@ -89,6 +99,13 @@ __all__ = [
     "box_vertices",
     "write_box_regions",
     "read_box_regions",
+    # Pipeline integration
+    "plot_map_with_peaks",
+    "plot_star_gas_maps",
+    "plot_sensitivity_histogram",
+    "plot_sensitivity_dual",
+    "generate_all_plots",
+    "export_peaks_to_ds9",
     # Clump display
     "plot_clumps",
     "plot_clumps_with_contours",

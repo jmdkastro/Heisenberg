@@ -16,7 +16,7 @@ References:
 """
 
 import numpy as np
-from typing import Optional, List, Tuple, Dict, Any
+from typing import Optional, List, Tuple, Dict, Any, Union
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -417,3 +417,78 @@ def generate_model_curve(
     )
 
     return apertures, model_star, model_gas
+
+
+def generate_plots(
+    result: TuningForkResult,
+    star_image: np.ndarray,
+    gas_image: np.ndarray,
+    output_dir: Union[str, Path],
+    galaxy_name: str = 'galaxy',
+    star_sensitivity: Optional[np.ndarray] = None,
+    gas_sensitivity: Optional[np.ndarray] = None,
+    dpi: int = 150,
+    formats: List[str] = None,
+) -> List[Path]:
+    """
+    Generate all diagnostic plots for a tuning fork analysis.
+
+    This is a convenience wrapper around the plotting module functions.
+    Generates tuning fork diagram, residuals, PDFs, maps with peaks,
+    and sensitivity histograms.
+
+    Args:
+        result: TuningForkResult from run_tuningfork
+        star_image: Stellar tracer image
+        gas_image: Gas tracer image
+        output_dir: Directory for output plots
+        galaxy_name: Name for file prefixes
+        star_sensitivity: Stellar sensitivity map (optional)
+        gas_sensitivity: Gas sensitivity map (optional)
+        dpi: Output resolution
+        formats: Output file formats (default: ['png', 'pdf'])
+
+    Returns:
+        List of generated file paths
+    """
+    from heisenberg.plotting import generate_all_plots
+
+    if formats is None:
+        formats = ['png', 'pdf']
+
+    return generate_all_plots(
+        result=result,
+        star_image=star_image,
+        gas_image=gas_image,
+        output_dir=output_dir,
+        galaxy_name=galaxy_name,
+        star_sensitivity=star_sensitivity,
+        gas_sensitivity=gas_sensitivity,
+        dpi=dpi,
+        formats=formats,
+    )
+
+
+def export_ds9_regions(
+    result: TuningForkResult,
+    output_dir: Union[str, Path],
+    galaxy_name: str = 'galaxy',
+) -> List[Path]:
+    """
+    Export peak positions to DS9 region files.
+
+    Args:
+        result: TuningForkResult from run_tuningfork
+        output_dir: Directory for output files
+        galaxy_name: Name for file prefixes
+
+    Returns:
+        List of generated file paths
+    """
+    from heisenberg.plotting import export_peaks_to_ds9
+
+    return export_peaks_to_ds9(
+        result=result,
+        output_dir=output_dir,
+        galaxy_name=galaxy_name,
+    )
