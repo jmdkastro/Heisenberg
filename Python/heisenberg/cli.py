@@ -71,7 +71,7 @@ def _config_to_diffuse_config(config):
 
 
 def _load_data_from_config(config, verbose: bool = False):
-    """Load FITS data based on configuration."""
+    """Load FITS data based on configuration, applying masks if specified."""
     from heisenberg.io.fits import read_fits, get_pixel_scale_pc
 
     datadir = config.files.datadir
@@ -80,13 +80,30 @@ def _load_data_from_config(config, verbose: bool = False):
     star_path = datadir / config.files.starfile
     if verbose:
         click.echo(f"Loading stellar map: {star_path}")
-    star_data, star_wcs, _ = read_fits(star_path)
+    star_data, star_wcs, star_header = read_fits(star_path)
 
     # Load gas map
     gas_path = datadir / config.files.gasfile
     if verbose:
         click.echo(f"Loading gas map: {gas_path}")
-    gas_data, gas_wcs, _ = read_fits(gas_path)
+    gas_data, gas_wcs, gas_header = read_fits(gas_path)
+
+    # Verify astrometry match
+    if star_wcs is not None and gas_wcs is not None:
+        from heisenberg.imaging.astrometry import astrometry_equal
+        if not astrometry_equal(star_data, star_header, gas_data, gas_header):
+            raise ValueError(
+                "Star and gas maps have different astrometry. "
+                "Please regrid images to a common pixel grid."
+            )
+        if verbose:
+            click.echo("Astrometry check passed: star and gas maps match")
+
+    # Apply masks if configured
+    if config.flags1.mask_images:
+        star_data, gas_data = _apply_masks(
+            star_data, gas_data, star_path, gas_path, config, verbose
+        )
 
     # Get pixel scale in pc
     if star_wcs is not None:
@@ -99,6 +116,61 @@ def _load_data_from_config(config, verbose: bool = False):
         click.echo(f"Pixel scale: {pixel_scale_pc:.2f} pc/pixel")
 
     return star_data, gas_data, pixel_scale_pc
+
+
+def _apply_masks(star_data, gas_data, star_path, gas_path, config, verbose: bool = False):
+    """Apply DS9 region masks to star and gas images."""
+    from heisenberg.imaging.mask_tool import mask_tool
+
+    maskdir = config.mask_files.maskdir
+
+    # Apply stellar mask
+    star_ext = config.mask_files.star_ext_mask
+    star_int = config.mask_files.star_int_mask
+
+    if star_ext or star_int:
+        if verbose:
+            click.echo("Applying masks to stellar map...")
+        star_ext_path = maskdir / star_ext if star_ext and maskdir else None
+        star_int_path = maskdir / star_int if star_int and maskdir else None
+
+        result = mask_tool(
+            image_input=star_data,
+            ds9_positive_path=star_ext_path,
+            ds9_negative_path=star_int_path,
+            convert=config.flags2.convert_masks,
+            conv_filepath=star_path,
+            run_without_masks=True,
+        )
+        star_data = result.masked_image
+        if verbose:
+            n_masked = result.mask.n_masked
+            click.echo(f"  Masked {n_masked} pixels in stellar map")
+
+    # Apply gas mask
+    gas_ext = config.mask_files.gas_ext_mask
+    gas_int = config.mask_files.gas_int_mask
+
+    if gas_ext or gas_int:
+        if verbose:
+            click.echo("Applying masks to gas map...")
+        gas_ext_path = maskdir / gas_ext if gas_ext and maskdir else None
+        gas_int_path = maskdir / gas_int if gas_int and maskdir else None
+
+        result = mask_tool(
+            image_input=gas_data,
+            ds9_positive_path=gas_ext_path,
+            ds9_negative_path=gas_int_path,
+            convert=config.flags2.convert_masks,
+            conv_filepath=gas_path,
+            run_without_masks=True,
+        )
+        gas_data = result.masked_image
+        if verbose:
+            n_masked = result.mask.n_masked
+            click.echo(f"  Masked {n_masked} pixels in gas map")
+
+    return star_data, gas_data
 
 
 def _print_results(result, verbose: bool = False):
@@ -128,6 +200,11 @@ def _print_results(result, verbose: bool = False):
     help='Skip iterative diffuse filtering (run tuningfork directly)'
 )
 @click.option(
+    '--interactive', '-i',
+    is_flag=True,
+    help='Run interactive peak finding TUI to tune detection parameters'
+)
+@click.option(
     '--output', '-o',
     type=click.Path(path_type=Path),
     help='Output file path (default: <galaxy>_results.json)'
@@ -155,6 +232,7 @@ def _print_results(result, verbose: bool = False):
 def run(
     input_file: Path,
     no_diffuse_filtering: bool,
+    interactive: bool,
     output: Optional[Path],
     output_dir: Optional[Path],
     plot: bool,
@@ -186,6 +264,55 @@ def run(
     except Exception as e:
         click.echo(click.style(f"Error loading data: {e}", fg='red'))
         raise SystemExit(1)
+
+    # Interactive peak finding if requested
+    if interactive:
+        click.echo("Running interactive peak finding...")
+        from heisenberg.peaks.interactive import (
+            interactive_peak_find,
+            InteractivePeakConfig,
+        )
+
+        interactive_config = InteractivePeakConfig(
+            npixmin=config.peak_id.npixmin,
+            nsigma=config.peak_id.nsigma,
+            loglevels=config.peak_id.loglevels,
+            logrange_s=config.peak_id.logrange_s,
+            logspacing_s=config.peak_id.logspacing_s,
+            logrange_g=config.peak_id.logrange_g,
+            logspacing_g=config.peak_id.logspacing_g,
+            nlinlevel_s=config.peak_id.nlinlevel_s,
+            nlinlevel_g=config.peak_id.nlinlevel_g,
+        )
+
+        try:
+            interactive_result = interactive_peak_find(
+                star_image=star_data,
+                gas_image=gas_data,
+                config=interactive_config,
+                output_dir=output_dir,
+                galaxy_name=config.galaxy,
+                use_matplotlib=True,
+            )
+
+            # Update config with tuned parameters
+            config.peak_id.npixmin = interactive_result.config.npixmin
+            config.peak_id.nsigma = interactive_result.config.nsigma
+            config.peak_id.logrange_s = interactive_result.config.logrange_s
+            config.peak_id.logspacing_s = interactive_result.config.logspacing_s
+            config.peak_id.logrange_g = interactive_result.config.logrange_g
+            config.peak_id.logspacing_g = interactive_result.config.logspacing_g
+
+            if verbose:
+                click.echo(f"Peak finding parameters updated:")
+                click.echo(f"  npixmin: {config.peak_id.npixmin}")
+                click.echo(f"  nsigma: {config.peak_id.nsigma}")
+                click.echo(f"  Star peaks: {len(interactive_result.star_peaks)}")
+                click.echo(f"  Gas peaks: {len(interactive_result.gas_peaks)}")
+
+        except KeyboardInterrupt:
+            click.echo("\nInteractive peak finding cancelled.")
+            raise SystemExit(0)
 
     if no_diffuse_filtering:
         # Single-pass analysis (heisenberg_nodf equivalent)
