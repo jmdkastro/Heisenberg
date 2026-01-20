@@ -213,6 +213,50 @@ def calculate_diffuse_fraction_with_errors(
     )
 
 
+def calculate_dist_stat_from_peaks(
+    peaks: list,
+    cut_length: float,
+    mask: Optional[np.ndarray] = None,
+    n_bootstrap: int = 1000,
+    seed: Optional[int] = None,
+) -> Tuple[float, float]:
+    """
+    Calculate the distance statistic for overlap correction from peaks.
+
+    The distance statistic is the median nearest-neighbour distance
+    normalized by the filter cut length.
+
+    Args:
+        peaks: List of DetectedPeak objects
+        cut_length: Filter cutoff length in pixels
+        mask: Optional mask array
+        n_bootstrap: Number of bootstrap iterations for uncertainty
+        seed: Random seed for reproducibility
+
+    Returns:
+        Tuple of (dist_stat, dist_stat_sigma)
+    """
+    from heisenberg.peaks.nearest_neighbour import nearest_neighbour_from_peaks
+
+    nn_result = nearest_neighbour_from_peaks(
+        peaks,
+        mask=mask,
+        n_bootstrap=n_bootstrap,
+        seed=seed,
+    )
+
+    # Normalize by cut length
+    if cut_length > 0 and not np.isnan(nn_result.dist_val):
+        dist_stat = nn_result.dist_val / cut_length
+        # Propagate error
+        dist_stat_sigma = nn_result.dist_sigma / cut_length
+    else:
+        dist_stat = np.nan
+        dist_stat_sigma = np.nan
+
+    return dist_stat, dist_stat_sigma
+
+
 def calculate_corrected_diffuse_fraction(
     image: np.ndarray,
     cut_length: float,
