@@ -334,10 +334,11 @@ def plot_summary(
     ax_text.axis('off')
 
     derived = result.derived
+    esf_formatted = f"{derived.get('esf', 0):.1%}".replace('%', r'\%')
     text_lines = [
         'Derived quantities:',
         f"$t_{{\\rm total}} = {derived.get('ttotal', 0):.1f}$ Myr",
-        f"$\\epsilon_{{\\rm sf}} = {derived.get('esf', 0):.1%}$",
+        f"$\\epsilon_{{\\rm sf}} = {esf_formatted}$",
         f"$v_{{\\rm fb}} = {derived.get('vfb', 0):.1f}$ km/s",
         '',
         f"$\\chi^2_{{\\rm min}} = {fit.chi2_min:.2f}$",
