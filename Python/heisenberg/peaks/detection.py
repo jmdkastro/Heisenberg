@@ -30,14 +30,17 @@ class PeakDetectionConfig:
         nsigma: Sensitivity threshold multiplier (default: 5.0)
         loglevels: Use logarithmic level spacing (default: True)
         logrange: Range in dex for log spacing (default: 2.0)
-        nlevels: Number of contour levels (default: 20)
+        logspacing: Interval between log levels in dex (default: 0.5).
+            Number of levels is derived as: nlevels = logrange / logspacing + 1
+        nlinlevel: Number of levels for linear spacing (default: 11)
         flux_weighted: Use flux-weighted positions (default: False)
     """
     npixmin: int = 20
     nsigma: float = 5.0
     loglevels: bool = True
     logrange: float = 2.0
-    nlevels: int = 20
+    logspacing: float = 0.5
+    nlinlevel: int = 11
     flux_weighted: bool = False
 
 
@@ -65,7 +68,6 @@ class DetectedPeak:
 def generate_contour_levels(
     image: np.ndarray,
     config: PeakDetectionConfig,
-    minlevel: Optional[float] = None,
 ) -> np.ndarray:
     """
     Generate contour levels for clumpfind based on configuration.
@@ -73,14 +75,14 @@ def generate_contour_levels(
     Args:
         image: Input image to determine level range
         config: PeakDetectionConfig with level parameters
-        minlevel: Optional minimum level override
 
     Returns:
         Array of contour levels from lowest to highest
 
     Notes:
         Logarithmic spacing (from IDL peak_find.pro):
-            maxlevel = log10(max(image))
+            nlevels = logrange / logspacing + 1
+            maxlevel = (floor(log10(max) / logspacing) - 1) * logspacing
             levels = 10^(maxlevel - logrange + i/(nlevels-1) * logrange)
 
         Linear spacing:
@@ -88,10 +90,10 @@ def generate_contour_levels(
     """
     return generate_levels(
         image,
-        nlevels=config.nlevels,
         logspacing=config.loglevels,
         logrange=config.logrange,
-        minlevel=minlevel,
+        log_spacing_value=config.logspacing,
+        nlinlevel=config.nlinlevel,
     )
 
 

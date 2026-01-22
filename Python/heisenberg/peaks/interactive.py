@@ -158,18 +158,19 @@ def _run_peak_detection(
     if config.loglevels:
         logrange = config.logrange_s if is_star else config.logrange_g
         logspacing = config.logspacing_s if is_star else config.logspacing_g
-        nlevels = int(logrange / logspacing) + 1
     else:
-        nlevels = config.nlinlevel_s if is_star else config.nlinlevel_g
         logrange = 2.0
         logspacing = 0.5
+
+    nlinlevel = config.nlinlevel_s if is_star else config.nlinlevel_g
 
     peak_config = PeakDetectionConfig(
         npixmin=config.npixmin,
         nsigma=config.nsigma,
         loglevels=config.loglevels,
         logrange=logrange,
-        nlevels=nlevels,
+        logspacing=logspacing,
+        nlinlevel=nlinlevel,
         flux_weighted=config.flux_weighted,
     )
 

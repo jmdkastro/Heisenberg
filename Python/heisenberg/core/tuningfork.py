@@ -109,6 +109,13 @@ class TuningForkConfig:
         npixmin_gas: Minimum pixels per gas peak
         nsigma_star: Detection threshold for stellar peaks
         nsigma_gas: Detection threshold for gas peaks
+        loglevels: Use logarithmic contour level spacing (default: True)
+        logrange_s: Log range in dex for stellar peak contours (default: 2.0)
+        logspacing_s: Log interval between stellar contour levels (default: 0.5)
+        logrange_g: Log range in dex for gas peak contours (default: 2.0)
+        logspacing_g: Log interval between gas contour levels (default: 0.5)
+        nlinlevel_s: Number of linear levels for stellar peaks (default: 11)
+        nlinlevel_g: Number of linear levels for gas peaks (default: 11)
         min_area_frac: Minimum fractional area for valid measurement
         seed: Random seed for reproducibility
         tstar_incl: If True, tstar includes overlap phase
@@ -128,6 +135,13 @@ class TuningForkConfig:
     npixmin_gas: int = 20
     nsigma_star: float = 5.0
     nsigma_gas: float = 5.0
+    loglevels: bool = True
+    logrange_s: float = 2.0
+    logspacing_s: float = 0.5
+    logrange_g: float = 2.0
+    logspacing_g: float = 0.5
+    nlinlevel_s: int = 11
+    nlinlevel_g: int = 11
     min_area_frac: float = 0.5
     seed: Optional[int] = None
     tstar_incl: bool = False
@@ -186,10 +200,18 @@ def run_tuningfork(
     star_peak_config = PeakDetectionConfig(
         npixmin=config.npixmin_star,
         nsigma=config.nsigma_star,
+        loglevels=config.loglevels,
+        logrange=config.logrange_s,
+        logspacing=config.logspacing_s,
+        nlinlevel=config.nlinlevel_s,
     )
     gas_peak_config = PeakDetectionConfig(
         npixmin=config.npixmin_gas,
         nsigma=config.nsigma_gas,
+        loglevels=config.loglevels,
+        logrange=config.logrange_g,
+        logspacing=config.logspacing_g,
+        nlinlevel=config.nlinlevel_g,
     )
 
     star_peaks = find_peaks(

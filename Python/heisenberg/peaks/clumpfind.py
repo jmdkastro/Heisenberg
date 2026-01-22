@@ -279,29 +279,33 @@ def _filter_and_build_clumps(
 
 def generate_levels(
     image: np.ndarray,
-    nlevels: int = 20,
     logspacing: bool = True,
     logrange: float = 2.0,
-    minlevel: Optional[float] = None,
+    log_spacing_value: float = 0.5,
+    nlinlevel: int = 11,
 ) -> np.ndarray:
     """
     Generate contour levels for clumpfind.
 
     Args:
         image: Input image to determine level range from
-        nlevels: Number of contour levels to generate
         logspacing: If True, use logarithmic spacing; if False, linear
         logrange: For log spacing, the range in dex below the maximum
-        minlevel: Optional minimum level (default: use image minimum or
-            10^(log10(max) - logrange) for log spacing)
+        log_spacing_value: For log spacing, the interval between levels in dex.
+            Number of levels is derived as: nlevels = logrange / log_spacing_value + 1
+        nlinlevel: For linear spacing, the number of contour levels
 
     Returns:
         Array of contour levels from lowest to highest
 
     Notes:
-        For logarithmic spacing (IDL formula):
-            maxlevel = log10(max(image))
+        For logarithmic spacing (from IDL peak_find.pro):
+            nlevels = logrange / logspacing + 1
+            maxlevel = (floor(log10(max) / logspacing) - 1) * logspacing
             levels = 10^(maxlevel - logrange + i/(nlevels-1) * logrange)
+
+        For linear spacing (from IDL peak_find.pro):
+            levels = minval + (maxval - minval) * i / (nlevels - 1)
     """
     # Get valid (non-NaN) values
     valid = image[~np.isnan(image)]
@@ -314,18 +318,27 @@ def generate_levels(
         raise ValueError("Image maximum must be positive for level generation")
 
     if logspacing:
-        # Logarithmic spacing from IDL
+        # Logarithmic spacing from IDL peak_find.pro
+        # Calculate number of levels from range and spacing
+        # IDL: nlevels_x = logrange_x / logspacing_x + 1
+        nlevels = int(logrange / log_spacing_value) + 1
+
+        # Get log of max value
         log_max = np.log10(maxval)
-        log_min = log_max - logrange
 
-        if minlevel is not None and minlevel > 0:
-            log_min = np.log10(minlevel)
+        # Round to grid-aligned value below maximum
+        # IDL: maxlevel = (floor(maxval/logspacing_x) - 1) * logspacing_x
+        # Note: IDL maxval is already log10(image), so this is floor(log_max/spacing)
+        maxlevel = (np.floor(log_max / log_spacing_value) - 1) * log_spacing_value
 
-        log_levels = log_min + np.arange(nlevels) / (nlevels - 1) * (log_max - log_min)
+        # Generate levels
+        # IDL: levels = 10.^(maxlevel - logrange_x + dindgen(nlevels_x)/(nlevels_x-1)*logrange_x)
+        log_levels = maxlevel - logrange + np.arange(nlevels) / (nlevels - 1) * logrange
         levels = 10**log_levels
     else:
-        # Linear spacing
-        minval = minlevel if minlevel is not None else np.min(valid[valid > 0])
-        levels = minval + np.arange(nlevels) / (nlevels - 1) * (maxval - minval)
+        # Linear spacing from IDL peak_find.pro
+        # IDL: levels = minval + (maxval - minval) * dindgen(nlevels_x) / (nlevels_x - 1)
+        minval = np.min(valid[valid > 0]) if np.any(valid > 0) else 0
+        levels = minval + np.arange(nlinlevel) / (nlinlevel - 1) * (maxval - minval)
 
     return levels

@@ -176,40 +176,42 @@ class TestGenerateLevels:
     """Tests for generate_levels function."""
 
     def test_logarithmic_levels(self):
-        """Log levels should span correct range."""
+        """Log levels should span correct range with IDL-style calculation."""
         image = np.ones((10, 10)) * 100.0
-        image[5, 5] = 1000.0  # Peak
+        image[5, 5] = 1000.0  # Peak, log10(1000) = 3.0
 
-        levels = generate_levels(image, nlevels=10, logspacing=True, logrange=2.0)
+        # With logrange=2.0, logspacing=0.5: nlevels = 2.0/0.5 + 1 = 5
+        levels = generate_levels(image, logspacing=True, logrange=2.0, log_spacing_value=0.5)
 
-        assert len(levels) == 10
-        # Should span from 10^(3-2)=10 to 10^3=1000
+        assert len(levels) == 5
         assert levels[0] < levels[-1]  # Ascending order
-        assert np.isclose(np.log10(levels[-1] / levels[0]), 2.0, rtol=0.1)
+        # IDL algorithm: maxlevel = (floor(3.0/0.5) - 1) * 0.5 = (6-1)*0.5 = 2.5
+        # levels span from 10^(2.5-2.0) to 10^2.5, i.e. from 10^0.5 to 10^2.5
 
     def test_linear_levels(self):
         """Linear levels should be evenly spaced."""
         image = np.zeros((10, 10))
         image[5, 5] = 100.0
 
-        levels = generate_levels(image, nlevels=11, logspacing=False, minlevel=0.0)
+        levels = generate_levels(image, logspacing=False, nlinlevel=11)
 
         assert len(levels) == 11
         # Should be evenly spaced
         diffs = np.diff(levels)
         assert np.allclose(diffs, diffs[0], rtol=0.01)
 
-    def test_minlevel_override(self):
-        """Custom minlevel should be respected."""
+    def test_nlevels_derived_from_spacing(self):
+        """Number of levels should be derived from logrange/logspacing + 1."""
         image = np.ones((10, 10)) * 100.0
         image[5, 5] = 1000.0
 
-        levels = generate_levels(
-            image, nlevels=10, logspacing=True, logrange=2.0, minlevel=50.0
-        )
+        # logrange=1.5, logspacing=0.5 -> nlevels = 1.5/0.5 + 1 = 4
+        levels = generate_levels(image, logspacing=True, logrange=1.5, log_spacing_value=0.5)
+        assert len(levels) == 4
 
-        # Allow small floating point tolerance
-        assert levels[0] >= 49.9
+        # logrange=2.0, logspacing=0.25 -> nlevels = 2.0/0.25 + 1 = 9
+        levels = generate_levels(image, logspacing=True, logrange=2.0, log_spacing_value=0.25)
+        assert len(levels) == 9
 
 
 class TestPeakStatistics:
@@ -346,7 +348,8 @@ class TestFindPeaks:
             sigma=5.0
         )
 
-        config = PeakDetectionConfig(npixmin=5, nlevels=10)
+        # Use defaults (npixmin=20, logspacing=0.5, logrange=2.0)
+        config = PeakDetectionConfig()
         peaks = find_peaks(image, config)
 
         assert len(peaks) == 1
@@ -366,7 +369,8 @@ class TestFindPeaks:
         sensitivity = np.ones_like(image) * 5.0
 
         # With nsigma=5, threshold is 25. Second peak (20) should be filtered.
-        config = PeakDetectionConfig(npixmin=5, nsigma=5.0, nlevels=15)
+        # Use defaults (npixmin=20, nsigma=5.0)
+        config = PeakDetectionConfig()
         peaks = find_peaks(image, config, sensitivity=sensitivity)
 
         assert len(peaks) == 1
@@ -381,7 +385,8 @@ class TestFindPeaks:
             sigmas=[5.0, 8.0]  # Second has more total flux due to larger sigma
         )
 
-        config = PeakDetectionConfig(npixmin=5, nlevels=15)
+        # Use defaults
+        config = PeakDetectionConfig()
         peaks = find_peaks(image, config)
 
         assert len(peaks) == 2
@@ -474,9 +479,9 @@ class TestFindPeaksDual:
         gas_image = star_image.copy()
 
         # Star config with very high npixmin filters the small peak
-        star_config = PeakDetectionConfig(npixmin=100, nlevels=15)
+        star_config = PeakDetectionConfig(npixmin=100)
         # Gas config with low npixmin keeps both
-        gas_config = PeakDetectionConfig(npixmin=5, nlevels=15)
+        gas_config = PeakDetectionConfig(npixmin=5)
 
         star_peaks, gas_peaks = find_peaks_dual(
             star_image, gas_image, star_config, gas_config
@@ -490,14 +495,15 @@ class TestContourLevels:
     """Tests for contour level generation."""
 
     def test_log_levels_from_config(self):
-        """Should generate log levels from config."""
+        """Should generate log levels from config with IDL-style calculation."""
         image = np.ones((10, 10)) * 10.0
         image[5, 5] = 1000.0
 
-        config = PeakDetectionConfig(loglevels=True, logrange=2.0, nlevels=10)
+        # logrange=2.0, logspacing=0.5 -> nlevels = 2.0/0.5 + 1 = 5
+        config = PeakDetectionConfig(loglevels=True, logrange=2.0, logspacing=0.5)
         levels = generate_contour_levels(image, config)
 
-        assert len(levels) == 10
+        assert len(levels) == 5
         assert levels[0] < levels[-1]
 
     def test_linear_levels_from_config(self):
@@ -505,7 +511,7 @@ class TestContourLevels:
         image = np.ones((10, 10)) * 10.0
         image[5, 5] = 100.0
 
-        config = PeakDetectionConfig(loglevels=False, nlevels=11)
+        config = PeakDetectionConfig(loglevels=False, nlinlevel=11)
         levels = generate_contour_levels(image, config)
 
         assert len(levels) == 11
