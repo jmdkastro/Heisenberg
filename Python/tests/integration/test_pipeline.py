@@ -128,10 +128,8 @@ class TestFullPipeline:
             lap_max=80.0,
             n_apertures=8,
             n_mc=20,
-            npixmin_star=15,
-            npixmin_gas=15,
-            nsigma_star=3.0,
-            nsigma_gas=3.0,
+            npixmin=20,
+            nsigma=5.0,
             seed=42,
         )
 
@@ -161,10 +159,8 @@ class TestFullPipeline:
             lap_max=100.0,
             n_apertures=6,
             n_mc=15,
-            npixmin_star=15,
-            npixmin_gas=15,
-            nsigma_star=3.0,
-            nsigma_gas=3.0,
+            npixmin=20,
+            nsigma=5.0,
             seed=123,
         )
 
@@ -192,10 +188,8 @@ class TestFullPipeline:
             lap_max=100.0,
             n_apertures=6,
             n_mc=15,
-            npixmin_star=15,
-            npixmin_gas=15,
-            nsigma_star=3.0,
-            nsigma_gas=3.0,
+            npixmin=20,
+            nsigma=5.0,
             seed=456,
         )
 
@@ -222,10 +216,8 @@ class TestFullPipeline:
             lap_max=100.0,
             n_apertures=6,
             n_mc=15,
-            npixmin_star=15,
-            npixmin_gas=15,
-            nsigma_star=3.0,
-            nsigma_gas=3.0,
+            npixmin=20,
+            nsigma=5.0,
             seed=789,
         )
 
@@ -253,10 +245,8 @@ class TestFullPipeline:
             lap_max=100.0,
             n_apertures=6,
             n_mc=15,
-            npixmin_star=15,
-            npixmin_gas=15,
-            nsigma_star=3.0,
-            nsigma_gas=3.0,
+            npixmin=20,
+            nsigma=5.0,
             seed=101,
         )
 
@@ -300,10 +290,8 @@ class TestPipelineWithMask:
             lap_max=100.0,
             n_apertures=6,
             n_mc=15,
-            npixmin_star=15,
-            npixmin_gas=15,
-            nsigma_star=3.0,
-            nsigma_gas=3.0,
+            npixmin=20,
+            nsigma=5.0,
             seed=202,
         )
 
@@ -335,10 +323,8 @@ class TestPipelineIO:
             lap_max=100.0,
             n_apertures=6,
             n_mc=15,
-            npixmin_star=15,
-            npixmin_gas=15,
-            nsigma_star=3.0,
-            nsigma_gas=3.0,
+            npixmin=20,
+            nsigma=5.0,
             seed=303,
         )
 
@@ -376,10 +362,8 @@ class TestPipelineIO:
             lap_max=100.0,
             n_apertures=6,
             n_mc=15,
-            npixmin_star=15,
-            npixmin_gas=15,
-            nsigma_star=3.0,
-            nsigma_gas=3.0,
+            npixmin=20,
+            nsigma=5.0,
             seed=404,
         )
 
@@ -423,10 +407,8 @@ class TestPipelineReproducibility:
             lap_max=100.0,
             n_apertures=6,
             n_mc=15,
-            npixmin_star=15,
-            npixmin_gas=15,
-            nsigma_star=3.0,
-            nsigma_gas=3.0,
+            npixmin=20,
+            nsigma=5.0,
             seed=500,
         )
 
@@ -465,10 +447,8 @@ class TestPipelineEdgeCases:
         config = TuningForkConfig(
             lap_min=5.0,
             lap_max=30.0,
-            npixmin_star=5,
-            npixmin_gas=5,
-            nsigma_star=3.0,
-            nsigma_gas=3.0,
+            npixmin=20,
+            nsigma=5.0,
         )
 
         with pytest.raises(ValueError, match="Insufficient stellar peaks"):
@@ -487,10 +467,8 @@ class TestPipelineEdgeCases:
             lap_max=50.0,  # Narrow range
             n_apertures=4,
             n_mc=10,
-            npixmin_star=15,
-            npixmin_gas=15,
-            nsigma_star=3.0,
-            nsigma_gas=3.0,
+            npixmin=20,
+            nsigma=5.0,
             seed=600,
         )
 

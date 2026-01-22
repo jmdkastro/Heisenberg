@@ -340,8 +340,8 @@ def run_diffuse_iteration(
         # Record results
         history.append_result(
             result,
-            npixmin=tuningfork_config.npixmin_star,
-            nsigma=tuningfork_config.nsigma_star,
+            npixmin=tuningfork_config.npixmin,
+            nsigma=tuningfork_config.nsigma,
         )
 
         lambda_val = result.fit.lambda_

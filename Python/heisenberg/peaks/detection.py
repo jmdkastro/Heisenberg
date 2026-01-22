@@ -12,7 +12,7 @@ import numpy as np
 from dataclasses import dataclass, field
 from typing import List, Optional, Tuple
 
-from .clumpfind import clumpfind2d, ClumpfindResult, generate_levels
+from .clumpfind import clumpfind2d, ClumpfindResult
 from .statistics import (
     PeakStatistics,
     compute_clump_statistics,
@@ -30,9 +30,9 @@ class PeakDetectionConfig:
         nsigma: Sensitivity threshold multiplier (default: 5.0)
         loglevels: Use logarithmic level spacing (default: True)
         logrange: Range in dex for log spacing (default: 2.0)
-        logspacing: Interval between log levels in dex (default: 0.5).
-            Number of levels is derived as: nlevels = logrange / logspacing + 1
-        nlinlevel: Number of levels for linear spacing (default: 11)
+        logspacing: Interval between log levels in dex (default: 0.5)
+        nlevels: Number of contour levels (calculated externally as
+            logrange / logspacing + 1 for log, or nlinlevel for linear)
         flux_weighted: Use flux-weighted positions (default: False)
     """
     npixmin: int = 20
@@ -40,7 +40,7 @@ class PeakDetectionConfig:
     loglevels: bool = True
     logrange: float = 2.0
     logspacing: float = 0.5
-    nlinlevel: int = 11
+    nlevels: int = 5  # Default: logrange/logspacing + 1 = 2.0/0.5 + 1 = 5
     flux_weighted: bool = False
 
 
@@ -65,6 +65,79 @@ class DetectedPeak:
     stats: Optional[PeakStatistics] = None
 
 
+def generate_levels(
+    image: np.ndarray,
+    nlevels: int,
+    loglevels: bool = True,
+    logrange: float = 2.0,
+    logspacing: float = 0.5,
+) -> np.ndarray:
+    """
+    Generate contour levels for clumpfind.
+
+    This function is equivalent to the level generation in IDL peak_find.pro.
+    It receives nlevels as a parameter (calculated externally, like in IDL
+    tuningfork.pro as: nlevels = logrange / logspacing + 1 for log levels,
+    or nlevels = nlinlevel for linear levels).
+
+    Args:
+        image: Input image to determine level range from
+        nlevels: Number of contour levels (pre-calculated)
+        loglevels: If True, use logarithmic spacing; if False, linear
+        logrange: For log spacing, the range in dex below the maximum
+        logspacing: For log spacing, the interval between levels in dex
+
+    Returns:
+        Array of contour levels from lowest to highest
+
+    Notes:
+        For logarithmic spacing (from IDL peak_find.pro):
+            maxval = max(alog10(peakid_x), /nan)
+            maxlevel = (floor(maxval/logspacing_x) - 1) * logspacing_x
+            levels = 10^(maxlevel - logrange_x + dindgen(nlevels_x)/(nlevels_x-1) * logrange_x)
+
+        For linear spacing (from IDL peak_find.pro):
+            maxval = max(peakid_x, /nan)
+            minval = min(peakid_x, /nan)
+            levels = minval + (maxval - minval) * dindgen(nlevels_x) / (nlevels_x - 1)
+
+    References:
+        IDL: peak_find.pro
+    """
+    # Get valid (non-NaN) values
+    valid = image[~np.isnan(image)]
+    if len(valid) == 0:
+        raise ValueError("Image contains no valid (non-NaN) values")
+
+    maxval = np.max(valid)
+
+    if maxval <= 0:
+        raise ValueError("Image maximum must be positive for level generation")
+
+    if loglevels:
+        # Logarithmic spacing from IDL peak_find.pro
+        # IDL: maxval = max(alog10(peakid_x), /nan)
+        log_max = np.log10(maxval)
+
+        # IDL: maxlevel = (floor(maxval/logspacing_x) - 1) * logspacing_x
+        # (Note: IDL maxval is already log10 of image)
+        maxlevel = (np.floor(log_max / logspacing) - 1) * logspacing
+
+        # IDL: levels = 10.^(maxlevel - logrange_x + dindgen(nlevels_x)/(nlevels_x-1) * logrange_x)
+        log_levels = maxlevel - logrange + np.arange(nlevels) / (nlevels - 1) * logrange
+        levels = 10**log_levels
+    else:
+        # Linear spacing from IDL peak_find.pro
+        # IDL: maxval = max(peakid_x, /nan)
+        # IDL: minval = min(peakid_x, /nan)
+        minval = np.min(valid)
+
+        # IDL: levels = minval + (maxval - minval) * dindgen(nlevels_x) / (nlevels_x - 1)
+        levels = minval + (maxval - minval) * np.arange(nlevels) / (nlevels - 1)
+
+    return levels
+
+
 def generate_contour_levels(
     image: np.ndarray,
     config: PeakDetectionConfig,
@@ -72,28 +145,21 @@ def generate_contour_levels(
     """
     Generate contour levels for clumpfind based on configuration.
 
+    Wrapper around generate_levels that extracts parameters from config.
+
     Args:
         image: Input image to determine level range
         config: PeakDetectionConfig with level parameters
 
     Returns:
         Array of contour levels from lowest to highest
-
-    Notes:
-        Logarithmic spacing (from IDL peak_find.pro):
-            nlevels = logrange / logspacing + 1
-            maxlevel = (floor(log10(max) / logspacing) - 1) * logspacing
-            levels = 10^(maxlevel - logrange + i/(nlevels-1) * logrange)
-
-        Linear spacing:
-            levels = minval + (maxval-minval) * i/(nlevels-1)
     """
     return generate_levels(
         image,
-        logspacing=config.loglevels,
+        nlevels=config.nlevels,
+        loglevels=config.loglevels,
         logrange=config.logrange,
-        log_spacing_value=config.logspacing,
-        nlinlevel=config.nlinlevel,
+        logspacing=config.logspacing,
     )
 
 

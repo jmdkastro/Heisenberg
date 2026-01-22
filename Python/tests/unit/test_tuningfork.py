@@ -85,10 +85,8 @@ class TestTuningForkConfig:
         assert config.n_mc == 100
         assert config.tstar == 10.0
         assert config.peak_prof == 2
-        assert config.npixmin_star == 20
-        assert config.npixmin_gas == 20
-        assert config.nsigma_star == 5.0
-        assert config.nsigma_gas == 5.0
+        assert config.npixmin == 20
+        assert config.nsigma == 5.0
 
     def test_custom_values(self):
         """Config should accept custom values."""
@@ -260,10 +258,8 @@ class TestRunTuningfork:
         config = TuningForkConfig(
             lap_min=5.0,
             lap_max=30.0,
-            npixmin_star=5,
-            npixmin_gas=5,
-            nsigma_star=3.0,
-            nsigma_gas=3.0,
+            npixmin=20,
+            nsigma=5.0,
         )
 
         with pytest.raises(ValueError, match="Insufficient stellar peaks"):
@@ -282,10 +278,8 @@ class TestRunTuningfork:
         config = TuningForkConfig(
             lap_min=5.0,
             lap_max=30.0,
-            npixmin_star=5,
-            npixmin_gas=5,
-            nsigma_star=3.0,
-            nsigma_gas=3.0,
+            npixmin=20,
+            nsigma=5.0,
         )
 
         with pytest.raises(ValueError, match="Insufficient gas peaks"):
@@ -316,10 +310,8 @@ class TestRunTuningfork:
             lap_max=60.0,
             n_apertures=5,
             n_mc=10,  # Small for speed
-            npixmin_star=10,
-            npixmin_gas=10,
-            nsigma_star=2.0,
-            nsigma_gas=2.0,
+            npixmin=20,
+            nsigma=5.0,
             seed=42,
         )
 
@@ -356,10 +348,8 @@ class TestRunTuningfork:
             lap_max=60.0,
             n_apertures=5,
             n_mc=10,
-            npixmin_star=10,
-            npixmin_gas=10,
-            nsigma_star=2.0,
-            nsigma_gas=2.0,
+            npixmin=20,
+            nsigma=5.0,
             tstar=15.0,
             seed=42,
         )
@@ -437,10 +427,8 @@ class TestRunTuningforkIntegration:
             lap_max=80.0,
             n_apertures=8,
             n_mc=20,
-            npixmin_star=15,
-            npixmin_gas=15,
-            nsigma_star=3.0,
-            nsigma_gas=3.0,
+            npixmin=20,
+            nsigma=5.0,
             seed=42,
         )
 

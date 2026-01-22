@@ -19,7 +19,6 @@ from .clumpfind import (
     Clump,
     ClumpfindResult,
     clumpfind2d,
-    generate_levels,
 )
 
 from .statistics import (
@@ -35,6 +34,7 @@ from .detection import (
     DetectedPeak,
     find_peaks,
     find_peaks_dual,
+    generate_levels,
     generate_contour_levels,
     peaks_to_array,
     peaks_to_coords,
@@ -58,18 +58,18 @@ __all__ = [
     "Clump",
     "ClumpfindResult",
     "clumpfind2d",
-    "generate_levels",
     # Statistics
     "PeakStatistics",
     "compute_clump_statistics",
     "compute_all_statistics",
     "statistics_to_array",
     "SIGMA_TO_FWHM",
-    # Detection
+    # Detection (equivalent to IDL peak_find.pro)
     "PeakDetectionConfig",
     "DetectedPeak",
     "find_peaks",
     "find_peaks_dual",
+    "generate_levels",
     "generate_contour_levels",
     "peaks_to_array",
     "peaks_to_coords",

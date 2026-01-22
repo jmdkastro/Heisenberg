@@ -105,10 +105,8 @@ class TuningForkConfig:
         n_mc: Number of Monte Carlo realizations
         tstar: Stellar tracer visibility time (Myr)
         peak_prof: Peak profile model (0=point, 1=disc, 2=Gaussian)
-        npixmin_star: Minimum pixels per stellar peak
-        npixmin_gas: Minimum pixels per gas peak
-        nsigma_star: Detection threshold for stellar peaks
-        nsigma_gas: Detection threshold for gas peaks
+        npixmin: Minimum pixels per peak (default: 20)
+        nsigma: Detection threshold multiplier (default: 5.0)
         loglevels: Use logarithmic contour level spacing (default: True)
         logrange_s: Log range in dex for stellar peak contours (default: 2.0)
         logspacing_s: Log interval between stellar contour levels (default: 0.5)
@@ -131,10 +129,8 @@ class TuningForkConfig:
     n_mc: int = 100
     tstar: float = 10.0
     peak_prof: int = 2
-    npixmin_star: int = 20
-    npixmin_gas: int = 20
-    nsigma_star: float = 5.0
-    nsigma_gas: float = 5.0
+    npixmin: int = 20
+    nsigma: float = 5.0
     loglevels: bool = True
     logrange_s: float = 2.0
     logspacing_s: float = 0.5
@@ -197,21 +193,31 @@ def run_tuningfork(
     )
 
     # Step 2: Detect peaks
+    # Calculate nlevels like IDL tuningfork.pro:
+    #   if loglevels: nlevels_x = logrange_x / logspacing_x + 1
+    #   else: nlevels_x = nlinlevel_x
+    if config.loglevels:
+        nlevels_s = int(config.logrange_s / config.logspacing_s) + 1
+        nlevels_g = int(config.logrange_g / config.logspacing_g) + 1
+    else:
+        nlevels_s = config.nlinlevel_s
+        nlevels_g = config.nlinlevel_g
+
     star_peak_config = PeakDetectionConfig(
-        npixmin=config.npixmin_star,
-        nsigma=config.nsigma_star,
+        npixmin=config.npixmin,
+        nsigma=config.nsigma,
         loglevels=config.loglevels,
         logrange=config.logrange_s,
         logspacing=config.logspacing_s,
-        nlinlevel=config.nlinlevel_s,
+        nlevels=nlevels_s,
     )
     gas_peak_config = PeakDetectionConfig(
-        npixmin=config.npixmin_gas,
-        nsigma=config.nsigma_gas,
+        npixmin=config.npixmin,
+        nsigma=config.nsigma,
         loglevels=config.loglevels,
         logrange=config.logrange_g,
         logspacing=config.logspacing_g,
-        nlinlevel=config.nlinlevel_g,
+        nlevels=nlevels_g,
     )
 
     star_peaks = find_peaks(

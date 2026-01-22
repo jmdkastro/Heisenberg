@@ -173,15 +173,21 @@ class TestClumpfind2d:
 
 
 class TestGenerateLevels:
-    """Tests for generate_levels function."""
+    """Tests for generate_levels function.
+
+    Note: generate_levels is in detection.py (equivalent to IDL peak_find.pro),
+    NOT in clumpfind.py (equivalent to IDL clfind2d.pro). The nlevels parameter
+    is calculated externally (like in IDL tuningfork.pro) and passed in.
+    """
 
     def test_logarithmic_levels(self):
         """Log levels should span correct range with IDL-style calculation."""
         image = np.ones((10, 10)) * 100.0
         image[5, 5] = 1000.0  # Peak, log10(1000) = 3.0
 
-        # With logrange=2.0, logspacing=0.5: nlevels = 2.0/0.5 + 1 = 5
-        levels = generate_levels(image, logspacing=True, logrange=2.0, log_spacing_value=0.5)
+        # nlevels = logrange/logspacing + 1 = 2.0/0.5 + 1 = 5 (calculated externally)
+        nlevels = int(2.0 / 0.5) + 1
+        levels = generate_levels(image, nlevels=nlevels, loglevels=True, logrange=2.0, logspacing=0.5)
 
         assert len(levels) == 5
         assert levels[0] < levels[-1]  # Ascending order
@@ -193,24 +199,29 @@ class TestGenerateLevels:
         image = np.zeros((10, 10))
         image[5, 5] = 100.0
 
-        levels = generate_levels(image, logspacing=False, nlinlevel=11)
+        # For linear levels, nlevels = nlinlevel (specified directly)
+        nlevels = 11
+        levels = generate_levels(image, nlevels=nlevels, loglevels=False)
 
         assert len(levels) == 11
         # Should be evenly spaced
         diffs = np.diff(levels)
         assert np.allclose(diffs, diffs[0], rtol=0.01)
 
-    def test_nlevels_derived_from_spacing(self):
-        """Number of levels should be derived from logrange/logspacing + 1."""
+    def test_nlevels_passed_as_parameter(self):
+        """nlevels should be passed as parameter (calculated externally like IDL)."""
         image = np.ones((10, 10)) * 100.0
         image[5, 5] = 1000.0
 
+        # nlevels is calculated externally: logrange/logspacing + 1
         # logrange=1.5, logspacing=0.5 -> nlevels = 1.5/0.5 + 1 = 4
-        levels = generate_levels(image, logspacing=True, logrange=1.5, log_spacing_value=0.5)
+        nlevels = int(1.5 / 0.5) + 1
+        levels = generate_levels(image, nlevels=nlevels, loglevels=True, logrange=1.5, logspacing=0.5)
         assert len(levels) == 4
 
         # logrange=2.0, logspacing=0.25 -> nlevels = 2.0/0.25 + 1 = 9
-        levels = generate_levels(image, logspacing=True, logrange=2.0, log_spacing_value=0.25)
+        nlevels = int(2.0 / 0.25) + 1
+        levels = generate_levels(image, nlevels=nlevels, loglevels=True, logrange=2.0, logspacing=0.25)
         assert len(levels) == 9
 
 
@@ -492,15 +503,20 @@ class TestFindPeaksDual:
 
 
 class TestContourLevels:
-    """Tests for contour level generation."""
+    """Tests for contour level generation.
+
+    Note: nlevels must be calculated externally (like IDL tuningfork.pro)
+    and passed to PeakDetectionConfig.
+    """
 
     def test_log_levels_from_config(self):
         """Should generate log levels from config with IDL-style calculation."""
         image = np.ones((10, 10)) * 10.0
         image[5, 5] = 1000.0
 
-        # logrange=2.0, logspacing=0.5 -> nlevels = 2.0/0.5 + 1 = 5
-        config = PeakDetectionConfig(loglevels=True, logrange=2.0, logspacing=0.5)
+        # nlevels calculated externally: logrange/logspacing + 1 = 2.0/0.5 + 1 = 5
+        nlevels = int(2.0 / 0.5) + 1
+        config = PeakDetectionConfig(loglevels=True, logrange=2.0, logspacing=0.5, nlevels=nlevels)
         levels = generate_contour_levels(image, config)
 
         assert len(levels) == 5
@@ -511,7 +527,9 @@ class TestContourLevels:
         image = np.ones((10, 10)) * 10.0
         image[5, 5] = 100.0
 
-        config = PeakDetectionConfig(loglevels=False, nlinlevel=11)
+        # For linear levels, nlevels = nlinlevel (e.g., 11)
+        nlevels = 11
+        config = PeakDetectionConfig(loglevels=False, nlevels=nlevels)
         levels = generate_contour_levels(image, config)
 
         assert len(levels) == 11
